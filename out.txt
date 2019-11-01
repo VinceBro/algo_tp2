@@ -1,0 +1,70 @@
+Nombre de lignes = 322
+Nombre de stations initiales = 4646
+Nombre de services = 1
+Chargement des données effectué en 11.9226 secondes
+Nombre de stations ayant au moins 1 arrêt = 3638
+Nombre de transferts = 493
+Nombres de voyages = 2406
+Nombre d'arrêts = 119179
+Le nombre d'arcs (sans le point origine et destination) est = 333452
+Graphe (sans le point origine et destination) a été produit en 1.11476 secondes
+
+=============================================
+                  premier cas                
+=============================================
+
+Coordonnées GPS du point d'origine: (lat:46.7962, long:-71.3139)
+Coordonnées GPS du point de destination: (lat:46.8599, long:-71.3984)
+Nombre d'arcs ajoutés du point origine vers une station = 48
+Nombre d'arcs ajoutés d'une station vers le point destination = 1847
+Cet ajout au graphe a nécessité un temps d'exécution de 0.006329 secondes
+
+=====================
+     ITINÉRAIRE      
+=====================
+
+Heure de départ du point d'origine: 07:30:00
+Rendez vous à la station 4475 - Masson/4475 (lat:46.8043, long:-71.3146)
+De cette station, prenez l'autobus numéro 80 à l'heure 07:41:00 Vers Aéroport international Jean-Lesage (Nord)
+et arrêtez-vous à la station 5734 - T. Les Saules (lat:46.8122, long:-71.3243) à l'heure 07:52:00
+De cette station, rendez-vous à pieds à la station 5727 - T. Les Saules (lat:46.8127, long:-71.3239)
+De cette station, prenez l'autobus numéro 804 à l'heure 07:54:00 Vers Loretteville (Nord)
+et arrêtez-vous à la station 4148 - Racine/4148 (lat:46.8504, long:-71.3606) à l'heure 08:07:00
+De cette station, rendez-vous à pieds à la station 4093 - W.-Caron (lat:46.8509, long:-71.361)
+De cette station, prenez l'autobus numéro 75 à l'heure 08:20:00 Vers Val-Bélair (Nord)
+et arrêtez-vous à la station 2585 - de Jouvence (lat:46.8598, long:-71.3985) à l'heure 08:36:00
+Déplacez-vous à pieds de cette station au point destination
+Heure d'arrivée à la destination: 08:36:11
+Durée du trajet: 1 heures, 6 minutes, 11 secondes
+
+Temps d'exécution de l'algorithme de plus court chemin: 3947 microsecondes
+
+=============================================
+                  deuxième cas               
+=============================================
+
+Suppression du graphe connecté aux points source et destination
+Cette suppression a nécessité un temps d'exécution de 4.8e-05 secondes
+Coordonnées GPS du point d'origine: (lat:46.8599, long:-71.3984)
+Coordonnées GPS du point de destination: (lat:46.7962, long:-71.3139)
+Nombre d'arcs ajoutés du point origine vers une station = 140
+Nombre d'arcs ajoutés d'une station vers le point destination = 1104
+Cet ajout au graphe a nécessité un temps d'exécution de 0.00272 secondes
+
+=====================
+     ITINÉRAIRE      
+=====================
+
+Heure de départ du point d'origine: 07:30:00
+Rendez vous à la station 3220 - du Golf (lat:46.8524, long:-71.386)
+De cette station, prenez l'autobus numéro 74 à l'heure 07:51:00 Vers Place Jacques-Cartier (Sud)
+et arrêtez-vous à la station 5131 - Chauveau/5131 (lat:46.8316, long:-71.3497) à l'heure 08:02:00
+De cette station, prenez l'autobus numéro 804 à l'heure 08:07:00 Vers Sainte-Foy Centre (Sud)
+et arrêtez-vous à la station 4433 - P.-Lelièvre/4433 (lat:46.811, long:-71.3209) à l'heure 08:12:00
+De cette station, prenez l'autobus numéro 80 à l'heure 08:22:00 Vers Place Jacques-Cartier (Sud)
+et arrêtez-vous à la station 4607 - De Joinville (lat:46.7992, long:-71.3078) à l'heure 08:24:00
+Déplacez-vous à pieds de cette station au point destination
+Heure d'arrivée à la destination: 08:30:55
+Durée du trajet: 1 heures, 0 minutes, 55 secondes
+
+Temps d'exécution de l'algorithme de plus court chemin: 1163 microsecondes
