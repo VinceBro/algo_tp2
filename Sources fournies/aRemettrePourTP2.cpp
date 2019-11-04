@@ -16,14 +16,20 @@ void ReseauGTFS::ajouterArcsVoyages(const DonneesGTFS & p_gtfs)
     // m_arret du sommet à la position k = i*j +j
     unsigned int i = 0;
     unsigned int j = 0;
+    unsigned int counter = 0;
     for (auto voy : p_gtfs.getVoyages()){
-        for (auto arr : voy.second.getArrets()){
+        std::set<Arret::Ptr, Voyage::compArret> arrets = voy.second.getArrets();
+        std::set<Arret::Ptr, Voyage::compArret>::iterator it;
+        for (it = arrets.begin(); it != arrets.end(); ++it){
 
-            unsigned int temps = arr->getHeureArrivee() - arr->getHeureDepart();
-            m_leGraphe.ajouterArc(i, j, temps);
-            m_arretDuSommet.push_back(arr);
-            m_sommetDeArret.insert({arr, i*j +j});
-            j++;
+            if (it != --arrets.end()){
+                unsigned int temps =(*(next(it)))->getHeureArrivee() - (*it)->getHeureArrivee();
+                m_leGraphe.ajouterArc(i, j, temps);
+                m_arretDuSommet.push_back(*it);
+                m_sommetDeArret.insert({*it, counter});
+                counter++;
+                j++;
+            }
         }
         j = 0;
         i++;
@@ -42,24 +48,58 @@ void ReseauGTFS::ajouterArcsTransferts(const DonneesGTFS & p_gtfs)
     //cette fonction là execute 492 fois
 
     std::map<unsigned int, Station> toutes_stations = p_gtfs.getStations();
+    auto tous_voyages = p_gtfs.getVoyages();
+    auto toutes_lignes = p_gtfs.getLignes();
 
     unsigned int counter = 0;
     for (auto trans : p_gtfs.getTransferts()){
 
         unsigned int from = get<0>(trans);
         unsigned int to = get<1>(trans);
-        unsigned int transfer_time =  get<1>(trans);
-        Station from_stat = toutes_stations[from];
-        Station to_stat = toutes_stations[to];
+        unsigned int transfer_time =  get<2>(trans);
+
+        Station from_stat = toutes_stations.at(from);
+        Station to_stat = toutes_stations.at(to);
+
+        unsigned int i = 0;
         for (auto from_heure_et_arret : from_stat.getArrets()){
             Arret::Ptr from_arret = from_heure_et_arret.second;
-            cout << "yen a tu vrm un?" << endl;
-            cout << m_sommetDeArret[from_arret] << endl;
+
+            auto from_ligne_id = toutes_lignes.at(tous_voyages.at(from_arret->getVoyageId()).getLigne()).getId();
+
+            unsigned int lowest;
+            Arret::Ptr lowest_arret;
+            unsigned int j = 0;
             for (auto to_heure_et_arret: to_stat.getArrets()){
-                Arret::Ptr to_arret = from_heure_et_arret.second;
-                
+                Arret::Ptr  to_arret = to_heure_et_arret.second;
+                unsigned int transfert_de_stations = to_arret->getHeureArrivee() - from_arret->getHeureArrivee();
+
+                auto to_ligne_id = toutes_lignes.at(tous_voyages.at(to_arret->getVoyageId()).getLigne()).getId();
+
+                if (transfert_de_stations >= transfer_time && to_ligne_id != from_ligne_id){
+                    if(j == 0){
+                        lowest = transfert_de_stations;
+                        lowest_arret = to_arret;
+                    }
+                    else if (transfert_de_stations < lowest){
+                        lowest = transfert_de_stations;
+                        lowest_arret = to_arret;
+                    }
+                }
+                j++;
+//                if (transfert_de_stations >= transfer_time && to_ligne_id != from_ligne_id){
+//                    unsigned int index_from = m_sommetDeArret[from_arret];
+//                    unsigned int index_to = m_sommetDeArret[to_arret];
+//                    m_leGraphe.ajouterArc(index_from, index_to, transfert_de_stations);
+//                }
+            }
+            unsigned int index_from = m_sommetDeArret[from_arret];
+            unsigned int index_to = m_sommetDeArret[lowest_arret];
+            m_leGraphe.ajouterArc(index_from, index_to, lowest);
+
+
+            i++;
         }
-    }
 
     }
 
@@ -69,6 +109,9 @@ void ReseauGTFS::ajouterArcsTransferts(const DonneesGTFS & p_gtfs)
 //! \throws logic_error si une incohérence est détecté lors de cette étape de construction du graphe
 void ReseauGTFS::ajouterArcsAttente(const DonneesGTFS & p_gtfs)
 {
+    std::map<unsigned int, Station> toutes_stations = p_gtfs.getStations();
+    auto tous_voyages = p_gtfs.getVoyages();
+    auto toutes_lignes = p_gtfs.getLignes();
 	//écrire votre code ici
 }
 
