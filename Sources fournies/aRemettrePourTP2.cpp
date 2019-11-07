@@ -112,7 +112,31 @@ void ReseauGTFS::ajouterArcsAttente(const DonneesGTFS & p_gtfs)
     std::map<unsigned int, Station> toutes_stations = p_gtfs.getStations();
     auto tous_voyages = p_gtfs.getVoyages();
     auto toutes_lignes = p_gtfs.getLignes();
-	//écrire votre code ici
+    auto tous_transferts = p_gtfs.getTransferts();
+    auto toutes_stations_de_transfert = p_gtfs.getStationsDeTransfert();
+    auto cunter = 0;
+
+    std::set<unsigned int> ligne_revient_une_fois;
+    // ligne_revient_deux_fois contient le station_id en clé et le ligne_id qui revient deux fois de celui_ci
+    std::map<unsigned int, unsigned int> ligne_revient_deux_fois;
+    for (auto stat:toutes_stations){
+        for (auto arr:stat.second.getArrets())  {
+            unsigned int ligne_id = tous_voyages.at(arr.second->getVoyageId()).getLigne();
+            if (ligne_revient_une_fois.count(ligne_id) == 0) ligne_revient_une_fois.insert(ligne_id);
+            else {
+                ligne_revient_deux_fois.insert({stat.first, ligne_id});
+                cout << cunter << endl;
+                cunter ++;
+        }
+        }
+    }
+
+    for (auto stat: toutes_stations){
+        for (auto stat_transfert: toutes_stations_de_transfert){
+           if (stat.first != stat_transfert and ligne_revient_deux_fois.count(stat.first)) {
+           }
+        }
+    }
 }
 
 
