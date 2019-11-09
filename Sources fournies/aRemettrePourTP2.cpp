@@ -14,78 +14,23 @@ void ReseauGTFS::ajouterArcsVoyages(const DonneesGTFS & p_gtfs)
 {
 
     // chiffres voulus : methode 1 116773, methode 2 44385, methode 3 172294
-    unsigned int i = 0;
-    unsigned int j = 0;
     unsigned int counter = 0;
     for (auto voy : p_gtfs.getVoyages()){
         std::set<Arret::Ptr, Voyage::compArret> arrets = voy.second.getArrets();
         std::set<Arret::Ptr, Voyage::compArret>::iterator it;
         for (it = arrets.begin(); it != arrets.end(); ++it){
-
-            if (it != --arrets.end()){
-                unsigned int temps =(*(next(it)))->getHeureArrivee() - (*it)->getHeureArrivee();
-                m_leGraphe.ajouterArc(i, j, temps);
-                j++;
-            }
             m_arretDuSommet.push_back(*it);
             m_sommetDeArret.insert({*it, counter});
             counter++;
         }
-        j = 0;
-        i++;
+        for (it = arrets.begin(); it != --arrets.end(); ++it){
+            unsigned int temps =(*(next(it)))->getHeureArrivee() - (*it)->getHeureArrivee();
+            m_leGraphe.ajouterArc(m_sommetDeArret.at((*it)), m_sommetDeArret.at((*next(it))),temps);
+        }
     }
-//    const std::map<std::string, Voyage> voyages = p_gtfs.getVoyages();
-//
-//    unsigned int i = 0;
-//
-//    for (auto& voyage : voyages) {
-//        auto arrets = voyage.second.getArrets();
-//
-//        std::vector<unsigned int> indexes;
-//
-//        //Create arret nodes
-//        for (auto& arret : arrets) {
-//
-//            //add to m_sommetdearret
-//            m_sommetDeArret.insert({arret, i});
-//
-//            //addto m_arretdusommet
-//            m_arretDuSommet.push_back(arret);
-//
-//
-//            indexes.push_back(i);
-//            i++;
-//        }
-//
-//        //Create arcs between nodes
-//        for (int j=0; j < indexes.size()-1; j++) {
-//            unsigned int origin = indexes[j];
-//            unsigned int destination = indexes[j+1];
-//
-//            //get heure d'arrivee de origin
-//            Heure arrivee = (*m_arretDuSommet[origin]).getHeureArrivee();
-//
-//            //get heure d'arrivee(devrait etre de depart?) de destination
-//            Heure depart = (*m_arretDuSommet[destination]).getHeureArrivee();
-//
-//            //trouve le nombre de secondes entre ces deux temps là
-//            int poids = depart - arrivee;
-//
-//            // add arcs
-//            try {
-//                m_leGraphe.ajouterArc(origin, destination, poids);
-//            } catch (...) {
-//                throw std::logic_error("incohérence");
-//            }
-//        }
-//
-//
-//    }
     cout << "1 : " << getNbArcs() << endl;
 	//écrire votre code ici
 }
-    //comme le nom dit lui cest les transferts et les stations
-    //cette fonction là execute 492 fois
 
 
 
