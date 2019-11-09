@@ -68,43 +68,25 @@ void ReseauGTFS::ajouterArcsTransferts(const DonneesGTFS & p_gtfs)
 
             string from_numero_ligne = toutes_lignes.at(tous_voyages.at(from_arret->getVoyageId()).getLigne()).getNumero();
 
-            unsigned int lowest;
-            Arret::Ptr lowest_arret;
-            bool first_available = true;
-            //TODO je sais pas si on considère chaque arrêt plus court dans le for suivant car on regarde juste la différence du suivant avec le précédent (on n'évalue pas le premier avec ledernier par exemple)
             map<string, pair<unsigned int, Arret::Ptr> > memory;
             for (auto to_heure_et_arret: to_stat.getArrets()){
                 Arret::Ptr  to_arret = to_heure_et_arret.second;
                 unsigned int transfer_time = to_arret->getHeureArrivee() - from_arret->getHeureArrivee();
 
                 string to_numero_ligne = toutes_lignes.at(tous_voyages.at(to_arret->getVoyageId()).getLigne()).getNumero();
-                string lowest_numero_ligne;
                 if (transfer_time >= min_transfer_time and to_numero_ligne != from_numero_ligne){
-                    if(first_available){
-                        lowest = transfer_time;
-                        lowest_arret = to_arret;
-                        lowest_numero_ligne = to_numero_ligne;
-                        first_available = false;
-                        memory[to_numero_ligne]= make_pair(lowest, lowest_arret);
-                    }
-                    else if (transfer_time < lowest ) {
-                        lowest = transfer_time;
-                        lowest_arret = to_arret;
-                        lowest_numero_ligne = to_numero_ligne;
-                        memory[to_numero_ligne] = make_pair(lowest, lowest_arret);
-                    }
+                    if (memory.count(to_numero_ligne) == 0) memory[to_numero_ligne] = make_pair(transfer_time, to_arret);
+                    else if (transfer_time < get<0>(memory.at(to_numero_ligne))) memory[to_numero_ligne] = make_pair(transfer_time, to_arret);
                 }
-//                if (transfer_time >= transfer_time && to_ligne_id != from_ligne_id){
-//                    unsigned int index_from = m_sommetDeArret[from_arret];
-//                    unsigned int index_to = m_sommetDeArret[to_arret];
-//                    m_leGraphe.ajouterArc(index_from, index_to, transfer_time);
-//                }
             }
 
-            if (!first_available) {
+            if (memory.size() > 0) {
+                for(auto m : memory){
                 unsigned int index_from = m_sommetDeArret[from_arret];
-                unsigned int index_to = m_sommetDeArret[lowest_arret];
-                m_leGraphe.ajouterArc(index_from, index_to, lowest);
+                unsigned int index_to = m_sommetDeArret[get<1>(m.second)];
+                m_leGraphe.ajouterArc(index_from, index_to, get<0>(m.second));
+                }
+                memory.clear();
             }
 
 
@@ -143,7 +125,7 @@ void ReseauGTFS::ajouterArcsAttente(const DonneesGTFS & p_gtfs)
         }
     }
 
-    for (auto stat: toutes_stations){
+    for (auto stat: toutes_stations){//and plus_dune_ligne_pour_station.count(stat.first)
            if (toutes_stations_de_transfert.count(stat.first) == 0  and plus_dune_ligne_pour_station.count(stat.first)) {
                std::multimap<Heure, Arret::Ptr> arrets = stat.second.getArrets();
                std::multimap<Heure, Arret::Ptr>::iterator it;
@@ -156,10 +138,10 @@ void ReseauGTFS::ajouterArcsAttente(const DonneesGTFS & p_gtfs)
 
 
                    Arret::Ptr A = (*outer_it).second;
+                   map<unsigned int, pair<unsigned int, Arret::Ptr> > memory;
                    unsigned int ligne_A = tous_voyages.at(A->getVoyageId()).getLigne();
                    bool first_available = true;
                    for (it = arrets.begin(); it != arrets.end(); ++it) {
-                       cunter++;
                        if (it != --arrets.end()) {
                            Arret::Ptr B = (*(next(it))).second;
                            unsigned int ligne_B = tous_voyages.at(B->getVoyageId()).getLigne();
@@ -171,7 +153,8 @@ void ReseauGTFS::ajouterArcsAttente(const DonneesGTFS & p_gtfs)
                                    temps_inferieur = temps;
                                    B_inferieur = B;
                                    ligne_B_inferieur = ligne_B;
-                               } else if (temps < temps_inferieur and ligne_B == ligne_B_inferieur) {
+                               } if (memory.count(ligne_B) == 0) memory[ligne_B] = make_pair(temps, B);
+                               else if (temps < get<0>(memory.at(ligne_B))) memory[ligne_B] = make_pair(temps,B); {
                                    temps_inferieur = temps;
                                    B_inferieur = B;
                                    ligne_B_inferieur = ligne_B;
@@ -191,7 +174,6 @@ void ReseauGTFS::ajouterArcsAttente(const DonneesGTFS & p_gtfs)
         }
 
 
-    cout << cunter << endl;
     cout << "3 : " << getNbArcs() - arc_deb << endl;
 }
 
