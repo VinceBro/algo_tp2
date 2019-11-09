@@ -29,6 +29,10 @@ void ReseauGTFS::ajouterArcsVoyages(const DonneesGTFS & p_gtfs)
                 m_sommetDeArret.insert({*it, counter});
                 counter++;
                 j++;
+            }else if (it == --arrets.end()){
+                m_arretDuSommet.push_back(*it);
+                m_sommetDeArret.insert({*it, counter});
+                counter++;
             }
         }
         j = 0;
@@ -68,13 +72,16 @@ void ReseauGTFS::ajouterArcsTransferts(const DonneesGTFS & p_gtfs)
             string from_numero_ligne = toutes_lignes.at(tous_voyages.at(from_arret->getVoyageId()).getLigne()).getNumero();
             set<string> memory;
             for (it = to_arrets.lower_bound(from_arret->getHeureArrivee()); it!= to_arrets.end(); it++ ){
-                Arret::Ptr  to_arret = (*it).second;
-                unsigned int transfer_time = to_arret->getHeureArrivee() - from_arret->getHeureArrivee();
+                    Arret::Ptr to_arret = (*it).second;
+                    unsigned int transfer_time = to_arret->getHeureArrivee() - from_arret->getHeureArrivee();
 
-                string to_numero_ligne = toutes_lignes.at(tous_voyages.at(to_arret->getVoyageId()).getLigne()).getNumero();
-                if (transfer_time >= min_transfer_time and to_numero_ligne != from_numero_ligne and memory.count(to_numero_ligne) == 0){
-                    m_leGraphe.ajouterArc(m_sommetDeArret[from_arret], m_sommetDeArret[to_arret], transfer_time);
-                    memory.insert(to_numero_ligne);
+                    string to_numero_ligne = toutes_lignes.at(
+                            tous_voyages.at(to_arret->getVoyageId()).getLigne()).getNumero();
+                    if (transfer_time >= min_transfer_time and to_numero_ligne != from_numero_ligne and
+                        memory.count(to_numero_ligne) == 0) {
+                        m_leGraphe.ajouterArc(m_sommetDeArret.at(from_arret), m_sommetDeArret.at(to_arret),
+                                              transfer_time);
+                        memory.insert(to_numero_ligne);
                 }
             }
             memory.clear();
@@ -130,7 +137,7 @@ void ReseauGTFS::ajouterArcsAttente(const DonneesGTFS & p_gtfs)
                            unsigned int ligne_B = tous_voyages.at(B->getVoyageId()).getLigne();
                            unsigned int temps = B->getHeureArrivee() - A->getHeureArrivee();
                            if (temps >= delaisMinArcsAttente and ligne_A != ligne_B and memory.count(ligne_B) == 0) {
-                                   m_leGraphe.ajouterArc(m_sommetDeArret[A], m_sommetDeArret[B], temps);
+                                   m_leGraphe.ajouterArc(m_sommetDeArret.at(A), m_sommetDeArret.at(B), temps);
                                    memory.insert(ligne_B);
                                }
 //                           }
@@ -189,6 +196,7 @@ void ReseauGTFS::ajouterArcsOrigineDestination(const DonneesGTFS &p_gtfs, const 
         double distance_arrivee = stat_coord - p_pointDestination;
         if (distance_depart <= distanceMaxMarche){
             std::set<unsigned int> ligne_passees;
+            std::multimap<Heure, Arret::Ptr>::iterator it;
             for(auto arr: stat.second.getArrets()){
                 unsigned int ligne_id = tous_voyages.at(arr.second->getVoyageId()).getLigne();
                 int temps_marche = (distance_depart/vitesseDeMarche) * 3600;
@@ -199,7 +207,7 @@ void ReseauGTFS::ajouterArcsOrigineDestination(const DonneesGTFS &p_gtfs, const 
                     ligne_passees.insert(ligne_id);
 
                     int poids = temps_marche + (arr.second->getHeureDepart()- arr.second->getHeureArrivee());
-                    m_leGraphe.ajouterArc(pos_origine, m_sommetDeArret.at(arr.second), poids);
+                    m_leGraphe.ajouterArc(pos_origine, m_sommetDeArret[arr.second], poids);
                     m_nbArcsOrigineVersStations++;
                 }
             }
@@ -208,9 +216,10 @@ void ReseauGTFS::ajouterArcsOrigineDestination(const DonneesGTFS &p_gtfs, const 
         else if( distance_arrivee <= distanceMaxMarche){
 
             int temps_marche = (distance_depart/vitesseDeMarche) * 3600;
+            std::multimap<Heure, Arret::Ptr>::iterator it;
             for (auto arr: stat.second.getArrets()){
-                m_leGraphe.ajouterArc(m_sommetDeArret.at(arr.second), pos_destination, temps_marche);
-                m_sommetsVersDestination.push_back(m_sommetDeArret.at(arr.second));
+                m_leGraphe.ajouterArc(m_sommetDeArret[arr.second], pos_destination, temps_marche);
+                m_sommetsVersDestination.push_back(m_sommetDeArret[arr.second]);
                 m_nbArcsStationsVersDestination++;
             }
         }
