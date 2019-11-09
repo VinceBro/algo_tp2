@@ -58,7 +58,7 @@ void ReseauGTFS::ajouterArcsTransferts(const DonneesGTFS & p_gtfs)
 
         unsigned int from = get<0>(trans);
         unsigned int to = get<1>(trans);
-        unsigned int transfer_time =  get<2>(trans);
+        unsigned int min_transfer_time =  get<2>(trans);
 
         Station from_stat = toutes_stations.at(from);
         Station to_stat = toutes_stations.at(to);
@@ -66,35 +66,41 @@ void ReseauGTFS::ajouterArcsTransferts(const DonneesGTFS & p_gtfs)
         for (auto from_heure_et_arret : from_stat.getArrets()){
             Arret::Ptr from_arret = from_heure_et_arret.second;
 
-            auto from_ligne_id = toutes_lignes.at(tous_voyages.at(from_arret->getVoyageId()).getLigne()).getId();
+            string from_numero_ligne = toutes_lignes.at(tous_voyages.at(from_arret->getVoyageId()).getLigne()).getNumero();
 
             unsigned int lowest;
             Arret::Ptr lowest_arret;
             bool first_available = true;
             //TODO je sais pas si on considère chaque arrêt plus court dans le for suivant car on regarde juste la différence du suivant avec le précédent (on n'évalue pas le premier avec ledernier par exemple)
+            map<string, pair<unsigned int, Arret::Ptr> > memory;
             for (auto to_heure_et_arret: to_stat.getArrets()){
                 Arret::Ptr  to_arret = to_heure_et_arret.second;
-                unsigned int transfert_de_stations = to_arret->getHeureArrivee() - from_arret->getHeureArrivee();
+                unsigned int transfer_time = to_arret->getHeureArrivee() - from_arret->getHeureArrivee();
 
-                auto to_ligne_id = toutes_lignes.at(tous_voyages.at(to_arret->getVoyageId()).getLigne()).getId();
-
-                if (transfert_de_stations >= transfer_time and to_ligne_id != from_ligne_id){
+                string to_numero_ligne = toutes_lignes.at(tous_voyages.at(to_arret->getVoyageId()).getLigne()).getNumero();
+                string lowest_numero_ligne;
+                if (transfer_time >= min_transfer_time and to_numero_ligne != from_numero_ligne){
                     if(first_available){
-                        lowest = transfert_de_stations;
+                        lowest = transfer_time;
                         lowest_arret = to_arret;
+                        lowest_numero_ligne = to_numero_ligne;
                         first_available = false;
+                        memory[to_numero_ligne]= make_pair(lowest, lowest_arret);
                     }
-                    else if (transfert_de_stations < lowest){
-                        lowest = transfert_de_stations;
+                    else if (transfer_time < lowest ) {
+                        lowest = transfer_time;
                         lowest_arret = to_arret;
+                        lowest_numero_ligne = to_numero_ligne;
+                        memory[to_numero_ligne] = make_pair(lowest, lowest_arret);
                     }
                 }
-//                if (transfert_de_stations >= transfer_time && to_ligne_id != from_ligne_id){
+//                if (transfer_time >= transfer_time && to_ligne_id != from_ligne_id){
 //                    unsigned int index_from = m_sommetDeArret[from_arret];
 //                    unsigned int index_to = m_sommetDeArret[to_arret];
-//                    m_leGraphe.ajouterArc(index_from, index_to, transfert_de_stations);
+//                    m_leGraphe.ajouterArc(index_from, index_to, transfer_time);
 //                }
             }
+
             if (!first_available) {
                 unsigned int index_from = m_sommetDeArret[from_arret];
                 unsigned int index_to = m_sommetDeArret[lowest_arret];
@@ -279,12 +285,12 @@ void ReseauGTFS::enleverArcsOrigineDestination()
     cout << m_sommetDestination << endl;
     for (size_t sommet: m_sommetsVersDestination){
         m_leGraphe.enleverArc(sommet, m_sommetDestination);
-        m_nbArcsStationsVersDestination--;
     }
 
 
     // Il manque d'enlever les arrêts reliés à origine et cette méthode est finie
 
+    m_nbArcsStationsVersDestination = 0;
     m_nbArcsOrigineVersStations = 0;
     Arret::Ptr arret_origine = m_arretDuSommet.at(m_sommetOrigine);
     Arret::Ptr arret_destination = m_arretDuSommet.at(m_sommetDestination);
