@@ -25,19 +25,62 @@ void ReseauGTFS::ajouterArcsVoyages(const DonneesGTFS & p_gtfs)
             if (it != --arrets.end()){
                 unsigned int temps =(*(next(it)))->getHeureArrivee() - (*it)->getHeureArrivee();
                 m_leGraphe.ajouterArc(i, j, temps);
-                m_arretDuSommet.push_back(*it);
-                m_sommetDeArret.insert({*it, counter});
-                counter++;
                 j++;
-            }else if (it == --arrets.end()){
-                m_arretDuSommet.push_back(*it);
-                m_sommetDeArret.insert({*it, counter});
-                counter++;
             }
+            m_arretDuSommet.push_back(*it);
+            m_sommetDeArret.insert({*it, counter});
+            counter++;
         }
         j = 0;
         i++;
     }
+//    const std::map<std::string, Voyage> voyages = p_gtfs.getVoyages();
+//
+//    unsigned int i = 0;
+//
+//    for (auto& voyage : voyages) {
+//        auto arrets = voyage.second.getArrets();
+//
+//        std::vector<unsigned int> indexes;
+//
+//        //Create arret nodes
+//        for (auto& arret : arrets) {
+//
+//            //add to m_sommetdearret
+//            m_sommetDeArret.insert({arret, i});
+//
+//            //addto m_arretdusommet
+//            m_arretDuSommet.push_back(arret);
+//
+//
+//            indexes.push_back(i);
+//            i++;
+//        }
+//
+//        //Create arcs between nodes
+//        for (int j=0; j < indexes.size()-1; j++) {
+//            unsigned int origin = indexes[j];
+//            unsigned int destination = indexes[j+1];
+//
+//            //get heure d'arrivee de origin
+//            Heure arrivee = (*m_arretDuSommet[origin]).getHeureArrivee();
+//
+//            //get heure d'arrivee(devrait etre de depart?) de destination
+//            Heure depart = (*m_arretDuSommet[destination]).getHeureArrivee();
+//
+//            //trouve le nombre de secondes entre ces deux temps là
+//            int poids = depart - arrivee;
+//
+//            // add arcs
+//            try {
+//                m_leGraphe.ajouterArc(origin, destination, poids);
+//            } catch (...) {
+//                throw std::logic_error("incohérence");
+//            }
+//        }
+//
+//
+//    }
     cout << "1 : " << getNbArcs() << endl;
 	//écrire votre code ici
 }
