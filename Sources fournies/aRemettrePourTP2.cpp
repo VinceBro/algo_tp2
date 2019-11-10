@@ -13,7 +13,6 @@ using namespace std;
 void ReseauGTFS::ajouterArcsVoyages(const DonneesGTFS & p_gtfs)
 {
 
-    // chiffres voulus : methode 1 116773, methode 2 44385, methode 3 172294
     unsigned int counter = 0;
     for (auto voy : p_gtfs.getVoyages()){
         std::set<Arret::Ptr, Voyage::compArret> arrets = voy.second.getArrets();
@@ -24,13 +23,14 @@ void ReseauGTFS::ajouterArcsVoyages(const DonneesGTFS & p_gtfs)
             counter++;
         }
         for (it = arrets.begin(); it != --arrets.end(); ++it){
-            unsigned int temps =(*(next(it)))->getHeureArrivee() - (*it)->getHeureArrivee();
-            m_leGraphe.ajouterArc(m_sommetDeArret.at((*it)), m_sommetDeArret.at((*next(it))),temps);
+            int temps =(*(next(it)))->getHeureArrivee() - (*it)->getHeureArrivee();
+            if (temps < 0) throw logic_error("Incohérence : Poids négatif");
+                m_leGraphe.ajouterArc(m_sommetDeArret.at((*it)), m_sommetDeArret.at((*next(it))),temps);
+            }
         }
-    }
     cout << "1 : " << getNbArcs() << endl;
+    }
 	//écrire votre code ici
-}
 
 
 
@@ -65,10 +65,11 @@ void ReseauGTFS::ajouterArcsTransferts(const DonneesGTFS & p_gtfs)
 
                     string to_numero_ligne = toutes_lignes.at(
                             tous_voyages.at(to_arret->getVoyageId()).getLigne()).getNumero();
-                    if (transfer_time >= min_transfer_time and to_numero_ligne != from_numero_ligne and
-                        memory.count(to_numero_ligne) == 0) {
-                        m_leGraphe.ajouterArc(m_sommetDeArret.at(from_arret), m_sommetDeArret.at(to_arret),
-                                              transfer_time);
+                    if (transfer_time >= min_transfer_time and to_numero_ligne != from_numero_ligne and memory.count(to_numero_ligne) == 0) {
+
+                        try {m_leGraphe.ajouterArc(m_sommetDeArret.at(from_arret), m_sommetDeArret.at(to_arret), transfer_time);}
+                        catch (logic_error){ throw logic_error("Incohérence : L'arrêt n'est pas stocké dans m_sommetDeArret");}
+
                         memory.insert(to_numero_ligne);
                 }
             }
@@ -122,9 +123,13 @@ void ReseauGTFS::ajouterArcsAttente(const DonneesGTFS & p_gtfs)
                            Arret::Ptr B = (*it).second;
                            unsigned int ligne_B = tous_voyages.at(B->getVoyageId()).getLigne();
                            unsigned int temps = B->getHeureArrivee() - A->getHeureArrivee();
+
                            if (temps >= delaisMinArcsAttente and ligne_A != ligne_B and memory.count(ligne_B) == 0) {
-                                   m_leGraphe.ajouterArc(m_sommetDeArret.at(A), m_sommetDeArret.at(B), temps);
-                                   memory.insert(ligne_B);
+
+                               try{m_leGraphe.ajouterArc(m_sommetDeArret.at(A), m_sommetDeArret.at(B), temps);}
+                               catch(logic_error){throw logic_error("Incohérence : L'arrêt n'est pas stocké dans m_sommetDeArret");}
+
+                                 memory.insert(ligne_B);
                                }
                    }
                    memory.clear();
@@ -150,11 +155,11 @@ void ReseauGTFS::ajouterArcsAttente(const DonneesGTFS & p_gtfs)
 void ReseauGTFS::ajouterArcsOrigineDestination(const DonneesGTFS &p_gtfs, const Coordonnees &p_pointOrigine,
                                                const Coordonnees &p_pointDestination)
 {
-    if(m_origine_dest_ajoute) throw logic_error("Incohérence : Les arcs d'origine sont déja construits");
+    if(m_origine_dest_ajoute) throw logic_error("Incohérence : Les arcs d'origine ont déja été construits");
     Heure heure_debut = p_gtfs.getTempsDebut();
     Heure heure_fin = p_gtfs.getTempsFin();
-    Arret arret_origine = Arret(stationIdOrigine,heure_fin,heure_debut, 20010, "null");
-    Arret arret_destination = Arret(stationIdDestination,heure_fin,heure_debut, 20010, "null");
+    Arret arret_origine = Arret(stationIdOrigine,heure_fin,heure_debut,0, "null");
+    Arret arret_destination = Arret(stationIdDestination,heure_fin,heure_debut,0, "null");
     Arret::Ptr ptr_origine = make_shared<Arret>(arret_origine);
     Arret::Ptr ptr_destination = make_shared<Arret>(arret_destination);
 
@@ -225,11 +230,11 @@ void ReseauGTFS::enleverArcsOrigineDestination()
 {
 
     if (!m_origine_dest_ajoute) throw logic_error("Incoherence : Les arcs d'origine doivent être construits avant d'être enlevés");
-    cout << m_sommetOrigine << endl;
-    cout << m_sommetDestination << endl;
     for (size_t sommet: m_sommetsVersDestination){
         m_leGraphe.enleverArc(sommet, m_sommetDestination);
     }
+
+    m_sommetsVersDestination.clear();
 
 
     // Il manque d'enlever les arrêts reliés à origine et cette méthode est finie

@@ -106,6 +106,77 @@ int main()
     cout << endl << "Temps d'exécution de l'algorithme de plus court chemin: " << tempsExecution2
          << " microsecondes" << endl;
 
+    cout << "Suppression du graphe connecté aux points source et destination" << endl;
+    begin = clock();
+    reseau_rtc.enleverArcsOrigineDestination();
+    end = clock();
+    cout << "Cette suppression a nécessité un temps d'exécution de " << double(end - begin) / CLOCKS_PER_SEC << " secondes" << endl;
+
+    Coordonnees pointOrigine3(46.8443, -71.3888);
+    Coordonnees pointDestination3(46.8506, -71.3387);
+    cout << "Coordonnées GPS du point d'origine: " << pointOrigine3 << endl;
+    cout << "Coordonnées GPS du point de destination: " << pointDestination3 << endl;
+    begin = clock();
+    reseau_rtc.ajouterArcsOrigineDestination(donnees_rtc, pointOrigine3, pointDestination3);
+    end = clock();
+    cout << "Nombre d'arcs ajoutés du point origine vers une station = " << reseau_rtc.getNbArcsOrigineVersStations() << endl;
+    cout << "Nombre d'arcs ajoutés d'une station vers le point destination = " << reseau_rtc.getNbArcsStationsVersDestination() << endl;
+    cout << "Cet ajout au graphe a nécessité un temps d'exécution de " << double(end - begin) / CLOCKS_PER_SEC << " secondes" << endl;
+
+    long tempsExecution3(0);
+    reseau_rtc.itineraire(donnees_rtc, true, tempsExecution3);
+    cout << endl << "Temps d'exécution de l'algorithme de plus court chemin: " << tempsExecution2
+         << " microsecondes" << endl;
+
+    cout << "Suppression du graphe connecté aux points source et destination" << endl;
+    begin = clock();
+    reseau_rtc.enleverArcsOrigineDestination();
+    end = clock();
+    cout << "Cette suppression a nécessité un temps d'exécution de " << double(end - begin) / CLOCKS_PER_SEC << " secondes" << endl;
+
+    Coordonnees pointOrigine4(46.7723, -71.296);
+    Coordonnees pointDestination4(46.7519, -71.3309);
+    cout << "Coordonnées GPS du point d'origine: " << pointOrigine4 << endl;
+    cout << "Coordonnées GPS du point de destination: " << pointDestination4 << endl;
+    begin = clock();
+    reseau_rtc.ajouterArcsOrigineDestination(donnees_rtc, pointOrigine4, pointDestination4);
+    end = clock();
+    cout << "Nombre d'arcs ajoutés du point origine vers une station = " << reseau_rtc.getNbArcsOrigineVersStations() << endl;
+    cout << "Nombre d'arcs ajoutés d'une station vers le point destination = " << reseau_rtc.getNbArcsStationsVersDestination() << endl;
+    cout << "Cet ajout au graphe a nécessité un temps d'exécution de " << double(end - begin) / CLOCKS_PER_SEC << " secondes" << endl;
+
+    long tempsExecution4(0);
+    reseau_rtc.itineraire(donnees_rtc, true, tempsExecution4);
+    cout << endl << "Temps d'exécution de l'algorithme de plus court chemin: " << tempsExecution2
+         << " microsecondes" << endl;
+
+    cout << "Suppression du graphe connecté aux points source et destination" << endl;
+    begin = clock();
+    reseau_rtc.enleverArcsOrigineDestination();
+    end = clock();
+    cout << "Cette suppression a nécessité un temps d'exécution de " << double(end - begin) / CLOCKS_PER_SEC << " secondes" << endl;
+
+    Coordonnees pointOrigine5(46.7424, -71.376);
+    Coordonnees pointDestination5(46.8414, -71.2241);
+    cout << "Coordonnées GPS du point d'origine: " << pointOrigine5 << endl;
+    cout << "Coordonnées GPS du point de destination: " << pointDestination5 << endl;
+    begin = clock();
+    reseau_rtc.ajouterArcsOrigineDestination(donnees_rtc, pointOrigine5, pointDestination5);
+    end = clock();
+    cout << "Nombre d'arcs ajoutés du point origine vers une station = " << reseau_rtc.getNbArcsOrigineVersStations() << endl;
+    cout << "Nombre d'arcs ajoutés d'une station vers le point destination = " << reseau_rtc.getNbArcsStationsVersDestination() << endl;
+    cout << "Cet ajout au graphe a nécessité un temps d'exécution de " << double(end - begin) / CLOCKS_PER_SEC << " secondes" << endl;
+
+    long tempsExecution5(0);
+    reseau_rtc.itineraire(donnees_rtc, true, tempsExecution5);
+    cout << endl << "Temps d'exécution de l'algorithme de plus court chemin: " << tempsExecution2
+         << " microsecondes" << endl;
+    cout << "Suppression du graphe connecté aux points source et destination" << endl;
+
+    begin = clock();
+    reseau_rtc.enleverArcsOrigineDestination();
+    end = clock();
+    cout << "Cette suppression a nécessité un temps d'exécution de " << double(end - begin) / CLOCKS_PER_SEC << " secondes" << endl;
     return 0;
 }
 
